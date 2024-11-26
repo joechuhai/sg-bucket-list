@@ -1,3 +1,4 @@
+// prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env.DATABASE_URL
@@ -7,17 +8,37 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model User {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  password    String
+  name        String?
+  completions UserCompletion[]
+  createdAt   DateTime  @default(now())
+}
+
 model BucketItem {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
   description String
   category    String
   location    String
   coordinates String
   image       String?
-  likes       Int      @default(0)
-  enabled     Boolean  @default(true)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  likes       Int       @default(0)
+  enabled     Boolean   @default(true)
+  order       Int       @default(0)
+  completions UserCompletion[]
+  createdAt   DateTime  @default(now())
+}
+
+model UserCompletion {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  itemId    Int
+  user      User       @relation(fields: [userId], references: [id])
+  item      BucketItem @relation(fields: [itemId], references: [id])
+  createdAt DateTime   @default(now())
+
+  @@unique([userId, itemId])
 }
